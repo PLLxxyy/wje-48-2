@@ -1,5 +1,5 @@
 import { Search, Filter, X, Calendar, Star } from 'lucide-react';
-import { EmotionType, EMOTION_LABELS } from '@/types';
+import { EmotionType } from '@/types';
 import { EmotionTag } from './EmotionTag';
 import { cn } from '@/lib/utils';
 

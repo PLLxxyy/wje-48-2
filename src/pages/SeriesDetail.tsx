@@ -16,6 +16,7 @@ export default function SeriesDetail() {
     removeDreamFromSeries,
     addDreamToSeries,
     deleteDream,
+    toggleFavorite,
   } = useDreamStore();
 
   const [showAddModal, setShowAddModal] = useState(false);
@@ -221,6 +222,7 @@ export default function SeriesDetail() {
                     dream={dream}
                     onEdit={handleEditDream}
                     onDelete={handleDeleteDream}
+                    onToggleFavorite={toggleFavorite}
                   />
 
                   {/* 移出按钮 */}

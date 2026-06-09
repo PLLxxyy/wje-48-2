@@ -1,7 +1,7 @@
 import { useState, useMemo, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Cloud, PieChart, Calendar, TrendingUp, Star } from 'lucide-react';
-import { PieChart as RechartsPie, Pie, Cell, ResponsiveContainer, BarChart, Bar, XAxis, YAxis, Tooltip, Legend } from 'recharts';
+import { PieChart as RechartsPie, Pie, Cell, ResponsiveContainer, BarChart, Bar, XAxis, YAxis, Tooltip } from 'recharts';
 import { useDreamStore } from '@/store/dreamStore';
 import { GlassCard } from '@/components/GlassCard';
 import { generateWordCloud } from '@/utils/wordAnalysis';
@@ -25,7 +25,8 @@ export default function Visualize() {
   const { dreams, getEmotionStats, setSearchFilters, getFavoriteDreams } = useDreamStore();
   const [selectedMonth, setSelectedMonth] = useState<string>('');
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const favoriteDreams = getFavoriteDreams();
+
+  const favoriteDreams = useMemo(() => getFavoriteDreams(), [getFavoriteDreams]);
 
   const emotionStats = useMemo(() => {
     return getEmotionStats(selectedMonth || undefined).filter((s) => s.count > 0);

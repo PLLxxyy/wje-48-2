@@ -1,3 +1,4 @@
+import { useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { PenSquare, BookOpen, BarChart3, Sparkles, GitBranch, Download, Star } from 'lucide-react';
 import { useDreamStore } from '@/store/dreamStore';
@@ -26,7 +27,8 @@ const quickActions: QuickAction[] = [
 export default function Home() {
   const navigate = useNavigate();
   const { dreams, series, getFavoriteDreams, setSearchFilters } = useDreamStore();
-  const favoriteDreams = getFavoriteDreams();
+
+  const favoriteDreams = useMemo(() => getFavoriteDreams(), [getFavoriteDreams]);
 
   const recentDreams = [...dreams]
     .sort((a, b) => new Date(b.wakeUpTime).getTime() - new Date(a.wakeUpTime).getTime())
