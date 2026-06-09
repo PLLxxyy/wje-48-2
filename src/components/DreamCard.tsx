@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Clock, Moon, ChevronDown, ChevronUp, Edit2, Trash2, Link2 } from 'lucide-react';
+import { Clock, Moon, ChevronDown, ChevronUp, Edit2, Trash2, Link2, Star } from 'lucide-react';
 import { Dream } from '@/types';
 import { GlassCard } from './GlassCard';
 import { EmotionTag } from './EmotionTag';
@@ -13,6 +13,7 @@ interface DreamCardProps {
   onEdit?: (dream: Dream) => void;
   onDelete?: (id: string) => void;
   onAddToSeries?: (dream: Dream) => void;
+  onToggleFavorite?: (id: string) => void;
   className?: string;
 }
 
@@ -22,6 +23,7 @@ export const DreamCard = ({
   onEdit,
   onDelete,
   onAddToSeries,
+  onToggleFavorite,
   className,
 }: DreamCardProps) => {
   const [isExpanded, setIsExpanded] = useState(false);
@@ -62,9 +64,26 @@ export const DreamCard = ({
           <h3 className="font-display text-xl font-semibold text-white flex-1">
             {renderHighlightedText(dream.title)}
           </h3>
-          <button className="text-white/50 hover:text-white transition-colors p-1">
-            {isExpanded ? <ChevronUp className="w-5 h-5" /> : <ChevronDown className="w-5 h-5" />}
-          </button>
+          <div className="flex items-center gap-1">
+            {onToggleFavorite && (
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onToggleFavorite(dream.id);
+                }}
+                className={`transition-colors p-1 ${
+                  dream.isFavorite
+                    ? 'text-yellow-400 hover:text-yellow-300'
+                    : 'text-white/50 hover:text-yellow-400'
+                }`}
+              >
+                <Star className={`w-5 h-5 ${dream.isFavorite ? 'fill-current' : ''}`} />
+              </button>
+            )}
+            <button className="text-white/50 hover:text-white transition-colors p-1">
+              {isExpanded ? <ChevronUp className="w-5 h-5" /> : <ChevronDown className="w-5 h-5" />}
+            </button>
+          </div>
         </div>
 
         <div className="flex flex-wrap items-center gap-3 mb-3 text-sm text-white/60">
@@ -97,44 +116,62 @@ export const DreamCard = ({
         )}
       </div>
 
-      {isExpanded && (onEdit || onDelete || onAddToSeries) && (
-        <div className="px-5 py-3 border-t border-white/10 bg-white/5 flex items-center justify-end gap-2">
-          {onAddToSeries && (
+      {isExpanded && (onEdit || onDelete || onAddToSeries || onToggleFavorite) && (
+        <div className="px-5 py-3 border-t border-white/10 bg-white/5 flex items-center justify-between gap-2">
+          {onToggleFavorite && (
             <button
               onClick={(e) => {
                 e.stopPropagation();
-                onAddToSeries(dream);
+                onToggleFavorite(dream.id);
               }}
-              className="flex items-center gap-1.5 px-3 py-1.5 text-sm text-white/70 hover:text-white hover:bg-white/10 rounded-lg transition-all"
+              className={`flex items-center gap-1.5 px-3 py-1.5 text-sm rounded-lg transition-all ${
+                dream.isFavorite
+                  ? 'text-yellow-400 hover:text-yellow-300 hover:bg-yellow-400/10'
+                  : 'text-white/70 hover:text-yellow-400 hover:bg-white/10'
+              }`}
             >
-              <Link2 className="w-4 h-4" />
-              加入系列
+              <Star className={`w-4 h-4 ${dream.isFavorite ? 'fill-current' : ''}`} />
+              {dream.isFavorite ? '取消收藏' : '收藏'}
             </button>
           )}
-          {onEdit && (
-            <button
-              onClick={(e) => {
-                e.stopPropagation();
-                onEdit(dream);
-              }}
-              className="flex items-center gap-1.5 px-3 py-1.5 text-sm text-white/70 hover:text-white hover:bg-white/10 rounded-lg transition-all"
-            >
-              <Edit2 className="w-4 h-4" />
-              编辑
-            </button>
-          )}
-          {onDelete && (
-            <button
-              onClick={(e) => {
-                e.stopPropagation();
-                onDelete(dream.id);
-              }}
-              className="flex items-center gap-1.5 px-3 py-1.5 text-sm text-red-400/70 hover:text-red-400 hover:bg-red-400/10 rounded-lg transition-all"
-            >
-              <Trash2 className="w-4 h-4" />
-              删除
-            </button>
-          )}
+          <div className="flex items-center gap-2">
+            {onAddToSeries && (
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onAddToSeries(dream);
+                }}
+                className="flex items-center gap-1.5 px-3 py-1.5 text-sm text-white/70 hover:text-white hover:bg-white/10 rounded-lg transition-all"
+              >
+                <Link2 className="w-4 h-4" />
+                加入系列
+              </button>
+            )}
+            {onEdit && (
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onEdit(dream);
+                }}
+                className="flex items-center gap-1.5 px-3 py-1.5 text-sm text-white/70 hover:text-white hover:bg-white/10 rounded-lg transition-all"
+              >
+                <Edit2 className="w-4 h-4" />
+                编辑
+              </button>
+            )}
+            {onDelete && (
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onDelete(dream.id);
+                }}
+                className="flex items-center gap-1.5 px-3 py-1.5 text-sm text-red-400/70 hover:text-red-400 hover:bg-red-400/10 rounded-lg transition-all"
+              >
+                <Trash2 className="w-4 h-4" />
+                删除
+              </button>
+            )}
+          </div>
         </div>
       )}
     </GlassCard>

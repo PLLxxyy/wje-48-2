@@ -1,6 +1,6 @@
 import { useState, useMemo, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Cloud, PieChart, Calendar, TrendingUp } from 'lucide-react';
+import { Cloud, PieChart, Calendar, TrendingUp, Star } from 'lucide-react';
 import { PieChart as RechartsPie, Pie, Cell, ResponsiveContainer, BarChart, Bar, XAxis, YAxis, Tooltip, Legend } from 'recharts';
 import { useDreamStore } from '@/store/dreamStore';
 import { GlassCard } from '@/components/GlassCard';
@@ -22,9 +22,10 @@ const EMOTION_COLORS: Record<EmotionType, string> = {
 
 export default function Visualize() {
   const navigate = useNavigate();
-  const { dreams, getEmotionStats, setSearchFilters } = useDreamStore();
+  const { dreams, getEmotionStats, setSearchFilters, getFavoriteDreams } = useDreamStore();
   const [selectedMonth, setSelectedMonth] = useState<string>('');
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const favoriteDreams = getFavoriteDreams();
 
   const emotionStats = useMemo(() => {
     return getEmotionStats(selectedMonth || undefined).filter((s) => s.count > 0);
@@ -149,6 +150,39 @@ export default function Visualize() {
       <div className="mb-8 animate-fade-in">
         <h1 className="font-display text-3xl font-bold text-white mb-2">数据可视化</h1>
         <p className="text-white/60">探索你的梦境模式和潜意识规律</p>
+      </div>
+
+      {/* 统计概览 */}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8 animate-fade-in">
+        <GlassCard className="p-5">
+          <p className="text-white/50 text-sm mb-1">梦境总数</p>
+          <p className="font-display text-2xl font-bold text-white">{dreams.length}</p>
+        </GlassCard>
+        <GlassCard
+          className="p-5 cursor-pointer hover:scale-105 transition-transform"
+          onClick={() => {
+            setSearchFilters({ isFavorite: true });
+            navigate('/dreams');
+          }}
+        >
+          <div className="flex items-center gap-1.5 mb-1">
+            <Star className="w-3.5 h-3.5 text-yellow-400 fill-current" />
+            <p className="text-white/50 text-sm">收藏梦境</p>
+          </div>
+          <p className="font-display text-2xl font-bold text-yellow-400">{favoriteDreams.length}</p>
+        </GlassCard>
+        <GlassCard className="p-5">
+          <p className="text-white/50 text-sm mb-1">收藏占比</p>
+          <p className="font-display text-2xl font-bold text-dream-accent">
+            {dreams.length > 0 ? Math.round((favoriteDreams.length / dreams.length) * 100) : 0}%
+          </p>
+        </GlassCard>
+        <GlassCard className="p-5">
+          <p className="text-white/50 text-sm mb-1">情绪类型</p>
+          <p className="font-display text-2xl font-bold text-dream-purpleSoft">
+            {new Set(dreams.map(d => d.emotion)).size}
+          </p>
+        </GlassCard>
       </div>
 
       {/* 月份筛选 */}

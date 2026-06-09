@@ -10,10 +10,12 @@ interface DreamState {
   isInitialized: boolean;
 
   initializeData: () => void;
-  addDream: (dream: Omit<Dream, 'id' | 'createdAt' | 'updatedAt'>) => void;
+  addDream: (dream: Omit<Dream, 'id' | 'createdAt' | 'updatedAt' | 'isFavorite'>) => void;
   updateDream: (id: string, updates: Partial<Dream>) => void;
   deleteDream: (id: string) => void;
   getDreamById: (id: string) => Dream | undefined;
+  toggleFavorite: (id: string) => void;
+  getFavoriteDreams: () => Dream[];
 
   addSeries: (series: Omit<Series, 'id' | 'createdAt' | 'updatedAt'>) => void;
   updateSeries: (id: string, updates: Partial<Series>) => void;
@@ -43,6 +45,7 @@ export const useDreamStore = create<DreamState>((set, get) => ({
     emotion: undefined,
     startDate: undefined,
     endDate: undefined,
+    isFavorite: undefined,
   },
   isInitialized: false,
 
@@ -75,12 +78,25 @@ export const useDreamStore = create<DreamState>((set, get) => ({
     const newDream: Dream = {
       ...dreamData,
       id: generateId(),
+      isFavorite: false,
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
     };
     const dreams = [...get().dreams, newDream];
     set({ dreams });
     saveDreams(dreams);
+  },
+
+  toggleFavorite: (id) => {
+    const dreams = get().dreams.map((d) =>
+      d.id === id ? { ...d, isFavorite: !d.isFavorite, updatedAt: new Date().toISOString() } : d
+    );
+    set({ dreams });
+    saveDreams(dreams);
+  },
+
+  getFavoriteDreams: () => {
+    return get().dreams.filter((d) => d.isFavorite);
   },
 
   updateDream: (id, updates) => {
@@ -229,13 +245,14 @@ export const useDreamStore = create<DreamState>((set, get) => ({
         emotion: undefined,
         startDate: undefined,
         endDate: undefined,
+        isFavorite: undefined,
       },
     });
   },
 
   getFilteredDreams: () => {
     const { dreams, searchFilters } = get();
-    const { keyword, emotion, startDate, endDate } = searchFilters;
+    const { keyword, emotion, startDate, endDate, isFavorite } = searchFilters;
 
     return dreams
       .filter((dream) => {
@@ -252,6 +269,8 @@ export const useDreamStore = create<DreamState>((set, get) => ({
         if (startDate && new Date(dream.wakeUpTime) < new Date(startDate)) return false;
 
         if (endDate && new Date(dream.wakeUpTime) > new Date(endDate + 'T23:59:59')) return false;
+
+        if (isFavorite !== undefined && dream.isFavorite !== isFavorite) return false;
 
         return true;
       })

@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { Plus, Link2 } from 'lucide-react';
 import { useDreamStore } from '@/store/dreamStore';
 import { DreamCard } from '@/components/DreamCard';
@@ -9,6 +9,7 @@ import { Dream, EmotionType } from '@/types';
 
 export default function DreamList() {
   const navigate = useNavigate();
+  const location = useLocation();
   const {
     searchFilters,
     setSearchFilters,
@@ -18,10 +19,19 @@ export default function DreamList() {
     series,
     dreams,
     addDreamToSeries,
+    toggleFavorite,
   } = useDreamStore();
 
   const [selectedDream, setSelectedDream] = useState<Dream | null>(null);
   const [showSeriesModal, setShowSeriesModal] = useState(false);
+
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    const favoriteParam = params.get('favorite');
+    if (favoriteParam === '1') {
+      setSearchFilters({ isFavorite: true });
+    }
+  }, [location.search, setSearchFilters]);
 
   const filteredDreams = getFilteredDreams();
 
@@ -86,6 +96,8 @@ export default function DreamList() {
         onStartDateChange={(value) => setSearchFilters({ startDate: value })}
         endDate={searchFilters.endDate}
         onEndDateChange={(value) => setSearchFilters({ endDate: value })}
+        isFavorite={searchFilters.isFavorite}
+        onIsFavoriteChange={(value) => setSearchFilters({ isFavorite: value })}
         onReset={resetSearchFilters}
       />
 
@@ -93,7 +105,7 @@ export default function DreamList() {
         <GlassCard className="p-12 text-center animate-fade-in">
           <div className="text-6xl mb-4">🌙</div>
           <p className="text-white/60 mb-4">
-            {searchFilters.keyword || searchFilters.emotion || searchFilters.startDate || searchFilters.endDate
+            {searchFilters.keyword || searchFilters.emotion || searchFilters.startDate || searchFilters.endDate || searchFilters.isFavorite !== undefined
               ? '没有找到匹配的梦境记录'
               : '还没有记录任何梦境'}
           </p>
@@ -111,6 +123,7 @@ export default function DreamList() {
               onEdit={handleEdit}
               onDelete={handleDelete}
               onAddToSeries={handleAddToSeries}
+              onToggleFavorite={toggleFavorite}
             />
           ))}
         </div>

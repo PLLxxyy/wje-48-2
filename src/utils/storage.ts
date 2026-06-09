@@ -19,7 +19,11 @@ const saveToStorage = <T>(key: string, value: T): void => {
 };
 
 export const getDreams = (): Dream[] => {
-  return getFromStorage<Dream[]>(STORAGE_KEYS.DREAMS, []);
+  const dreams = getFromStorage<Dream[]>(STORAGE_KEYS.DREAMS, []);
+  return dreams.map(dream => ({
+    isFavorite: false,
+    ...dream,
+  }));
 };
 
 export const saveDreams = (dreams: Dream[]): void => {

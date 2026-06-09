@@ -17,6 +17,7 @@ export interface Dream {
   emotion: EmotionType;
   tags: string[];
   seriesId?: string;
+  isFavorite: boolean;
   createdAt: string;
   updatedAt: string;
 }
@@ -35,6 +36,7 @@ export interface SearchFilters {
   emotion?: EmotionType;
   startDate?: string;
   endDate?: string;
+  isFavorite?: boolean;
 }
 
 export interface WordCloudItem {

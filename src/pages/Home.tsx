@@ -1,5 +1,5 @@
 import { useNavigate } from 'react-router-dom';
-import { PenSquare, BookOpen, BarChart3, Sparkles, GitBranch, Download } from 'lucide-react';
+import { PenSquare, BookOpen, BarChart3, Sparkles, GitBranch, Download, Star } from 'lucide-react';
 import { useDreamStore } from '@/store/dreamStore';
 import { GlassCard } from '@/components/GlassCard';
 import { EmotionTag } from '@/components/EmotionTag';
@@ -16,15 +16,17 @@ interface QuickAction {
 const quickActions: QuickAction[] = [
   { icon: PenSquare, label: '记录梦境', to: '/record', color: 'from-dream-primary to-dream-secondary' },
   { icon: BookOpen, label: '查看梦境', to: '/dreams', color: 'from-blue-500 to-cyan-500' },
+  { icon: Star, label: '我的收藏', to: '/dreams?favorite=1', color: 'from-yellow-400 to-amber-500' },
   { icon: BarChart3, label: '数据可视化', to: '/visualize', color: 'from-green-500 to-emerald-500' },
-  { icon: Sparkles, label: '随机梦回', to: '/reverie', color: 'from-yellow-500 to-orange-500' },
+  { icon: Sparkles, label: '随机梦回', to: '/reverie', color: 'from-orange-500 to-red-500' },
   { icon: GitBranch, label: '梦境系列', to: '/series', color: 'from-pink-500 to-rose-500' },
   { icon: Download, label: '导出备份', to: '/export', color: 'from-purple-500 to-violet-500' },
 ];
 
 export default function Home() {
   const navigate = useNavigate();
-  const { dreams, series } = useDreamStore();
+  const { dreams, series, getFavoriteDreams, setSearchFilters } = useDreamStore();
+  const favoriteDreams = getFavoriteDreams();
 
   const recentDreams = [...dreams]
     .sort((a, b) => new Date(b.wakeUpTime).getTime() - new Date(a.wakeUpTime).getTime())
@@ -51,7 +53,7 @@ export default function Home() {
       </div>
 
       {/* Quick Actions */}
-      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-12">
+      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-7 gap-4 mb-12">
         {quickActions.map((action, index) => {
           const Icon = action.icon;
           return (
@@ -77,12 +79,22 @@ export default function Home() {
       </div>
 
       {/* Stats Overview */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-12">
-        <GlassCard className="p-6 animate-stagger">
+      <div className="grid grid-cols-2 md:grid-cols-5 gap-4 mb-12">
+        <GlassCard className="p-6 animate-stagger cursor-pointer hover:scale-105 transition-transform" onClick={() => navigate('/dreams')}>
           <p className="text-white/50 text-sm mb-1">梦境总数</p>
           <p className="font-display text-3xl font-bold text-white">{dreams.length}</p>
         </GlassCard>
-        <GlassCard className="p-6 animate-stagger">
+        <GlassCard className="p-6 animate-stagger cursor-pointer hover:scale-105 transition-transform" onClick={() => {
+          setSearchFilters({ isFavorite: true });
+          navigate('/dreams');
+        }}>
+          <div className="flex items-center gap-1.5 mb-1">
+            <Star className="w-3.5 h-3.5 text-yellow-400 fill-current" />
+            <p className="text-white/50 text-sm">收藏梦境</p>
+          </div>
+          <p className="font-display text-3xl font-bold text-yellow-400">{favoriteDreams.length}</p>
+        </GlassCard>
+        <GlassCard className="p-6 animate-stagger cursor-pointer hover:scale-105 transition-transform" onClick={() => navigate('/series')}>
           <p className="text-white/50 text-sm mb-1">系列数量</p>
           <p className="font-display text-3xl font-bold text-dream-purpleSoft">{series.length}</p>
         </GlassCard>
